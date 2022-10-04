@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<odoo>
+
+    <record id="view_sucasa_pos_form_inherit" model="ir.ui.view">
+        <field name="name">sucasa.form.view.inherit</field>
+        <field name="model">pos.order</field>
+        <field name="inherit_id" ref="point_of_sale.view_pos_pos_form"></field>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='extra']" position='after'>
+                <page name="red_mas" string="Red+">
+                  <group>
+                    <field name="transaccion_id"/>
+                    <field name="transaccion_date"/>
+                    <field name="provider_authorizacion"/>
+                    <field name="add_info1"/>
+                    <field name="add_info2"/>
+                    <field name="add_info3"/>
+                    <field name="legal_info"/>
+                  </group>
+                  <group>
+                    <field name="reference_1"/>
+                    <field name="reference_2"/>
+                    <field name="reference_3"/>
+                  </group>
+
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

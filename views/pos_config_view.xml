@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="netpay_pos_config_view_form" model="ir.ui.view">
+        <field name="name">netpay.pos.config.form.viewt</field>
+        <field name="model">pos.config</field>
+        <field name="inherit_id" ref="point_of_sale.pos_config_view_form"/>
+        <field name="arch" type="xml">
+            <sheet position="inside">
+                <h2>Net pay</h2>
+                <button string="Generar primer token" name="get_first_token" type="object" class="oe_highlight"/>
+                / <button string="Refrescar token" name="get_refresh_token" type="object" class="oe_highlight"/>
+
+                <div class="row mt16 o_settings_container" id="net_pay_access">
+
+                    <div class="col-12 col-lg-6 o_setting_box">
+                        <div class="o_setting_right_pane">
+                            <label for="access_token" string="Access token"/>
+                            <field name="access_token"/>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-md-6 o_setting_box">
+                        <div class="o_setting_right_pane">
+                            <label for="refresh_token" string="Refresh token"/>
+                            <field name="refresh_token"/>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-md-6 o_setting_box">
+                        <div class="o_setting_right_pane">
+                            <label for="serial_number" string="Serial number"/>
+                            <field name="serial_number"/>
+                        </div>
+                    </div>
+
+                </div>
+            </sheet>
+        </field>
+    </record>
+
+</odoo>
