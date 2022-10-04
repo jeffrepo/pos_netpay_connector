@@ -19,6 +19,7 @@ class PosConfig(models.Model):
     access_token = fields.Char('Access Token')
     refresh_token = fields.Char('Refresh Token')
     serial_number = fields.Char('Serial number')
+    store_id_netpay = fields.Char('Store id netpay')
     # def eli_park(self):
     #
 

@@ -30,7 +30,12 @@
                             <field name="serial_number"/>
                         </div>
                     </div>
-
+                    <div class="col-xs-12 col-md-6 o_setting_box">
+                        <div class="o_setting_right_pane">
+                            <label for="store_id_netpay" string="Store id netpay"/>
+                            <field name="store_id_netpay"/>
+                        </div>
+                    </div>
                 </div>
             </sheet>
         </field>

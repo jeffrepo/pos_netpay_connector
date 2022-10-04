@@ -22,7 +22,7 @@ class PosOrder(models.Model):
         if sesiones:
             refresh_token_config = False
             serial_number = False
-            store_id = sesiones.config_id.id
+            store_id = sesiones.config_id.store_id_netpay
             for sesion in sesiones:
                 if sesion.config_id.refresh_token == False:
                     return super(PosOrder, self)._process_order(order, draft, existing_order)
