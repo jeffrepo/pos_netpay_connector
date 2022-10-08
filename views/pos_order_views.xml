@@ -1,12 +1,17 @@
 <?xml version="1.0"?>
 <odoo>
 
-    <record id="view_sucasa_pos_form_inherit" model="ir.ui.view">
-        <field name="name">sucasa.form.view.inherit</field>
+    <record id="view_pos_netpay_connector_pos_form_inherit" model="ir.ui.view">
+        <field name="name">pos_netpay_connector.form.view.inherit</field>
         <field name="model">pos.order</field>
         <field name="inherit_id" ref="point_of_sale.view_pos_pos_form"></field>
         <field name="arch" type="xml">
-            <xpath expr="//page[@name='extra']" position='after'>
+
+            <xpath expr="//button[@name='action_pos_order_invoice']" position='after'>
+                <button name="action_pos_order_cancel" string="Cancelar" class="oe_highlight" type="object"/>
+            </xpath>
+
+            <!-- <xpath expr="//page[@name='extra']" position='after'>
                 <page name="red_mas" string="Red+">
                   <group>
                     <field name="transaccion_id"/>
@@ -24,7 +29,7 @@
                   </group>
 
                 </page>
-            </xpath>
+            </xpath> -->
         </field>
     </record>
 

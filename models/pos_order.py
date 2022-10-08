@@ -186,3 +186,54 @@ class PosOrder(models.Model):
                 order.reference_3 = dicc[0]['reference3']
 
         return True
+
+    def action_pos_order_cancel(self):
+        logging.warning('Presionando al boton cancelar')
+        self.cancel_order_netpay()
+        return True
+
+    def cancel_order_netpay(self):
+        logging.warning('Funcion cancel order')
+        logging.warning('')
+
+        url = "http://nubeqa.netpay.com.mx:3334/integration-service/transactions/cancel"
+
+        refresh_token_config = False
+        store_id = self.session_id.config_id.storeid
+        reference = self.pos_reference[5:]
+        reference = reference.replace('-','')
+#         order_id = reference.replace(' ','')
+        order_id = 1213134654
+        if self.session_id.config_id.access_token:
+            refresh_token_config = self.session_id.config_id.access_token
+        logging.warning(order_id)
+
+        serial_id = self.session_id.config_id.serial_number
+
+#         payload = "{\r\n\"traceability\": {\"Ejemplo\":\"\"\r\n\t},\r\n  \"orderId\": \"{{orderId}}\",\r\n  \"serialNumber\": \"{{serialNumber}}\",\r\n  \"storeId\": \"{{storeId}}\"\r\n}"
+        payload = {
+            "traceability": {},
+            "serialNumber": str(serial_id),
+            "orderId": str(order_id),
+            "storeId": str(store_id),
+        }
+
+#         payload = {"traceability": {}, "serialNumber": "{serialNumber}", "orderId": "{orderId}", "storeId": "{storeId}",}
+
+        logging.warning('payload')
+        logging.warning(payload)
+        headers = {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer '+str(refresh_token_config)
+        }
+
+#         response = requests.request("POST", url, headers=headers, data = payload)
+        response = requests.post(url, data = json.dumps(payload), headers = headers)
+
+        logging.warning('Response --------')
+        logging.warning(response)
+        logging.warning(response.content)
+        logging.warning('')
+
+        print(response.text.encode('utf8'))
+        return True
