@@ -12,21 +12,88 @@ import logging
 import xmltodict, json
 import random
 import uuid
+import time
+from datetime import datetime
+from urllib.request import urlopen
+from odoo import http
+from odoo.http import request
+import time
+_logger = logging.getLogger(__name__)
 
 class PosOrder(models.Model):
     _inherit = 'pos.order'
 
+    order_netpay_id = fields.Char("orderId netpay")
+    netpaystatus = fields.Char('Status netpay')
+    reprint_netpay = fields.Boolean('Reprint netpay')
+    order_cancel_netpay = fields.Boolean('Orden cancelada')
+    cancel_hour = fields.Datetime('Fecha y hora de cancelación ')
+    reprint_time = fields.Datetime('Fecha y hora última reimpresión')
+
+
+
+#     def search_order_pos(self, server_id):
+#         data = {'transaction': True}
+#         logging.warning('SEARRCH ORDER POS NEW')
+#         logging.warning(server_id)
+#         if len(server_id) > 0:
+#             time.sleep(20)
+#             order_id = self.env['pos.order'].search([('id','=',server_id[0])])
+#             logging.warning('encontro orden')
+#             logging.warning(order_id)
+#             if order_id:
+#                 logging.warning(order_id.order_netpay_id)
+#         return data
+
+    def delete_values(self, id):
+        logging.warning('Ha limpiar la respuesta ')
+        logging.warning(id[0])
+        payment_methods = self.env['pos.payment.method'].search([('id', '=', id[0])])
+
+        for payment_method in payment_methods:
+            logging.warning(payment_method)
+            payment_method.netpay_latest_response = ""
+        return True
+
+    @api.model
+    def create_from_ui(self, orders, draft=False):
+        res = super(PosOrder, self).create_from_ui(orders, draft)
+        logging.warning('EL RES')
+        logging.warning(res)
+        logging.warning(orders)
+
+        logging.warning('SEARRCH create_from_ui ORDER POS NEW')
+        if res and res[0]['id'] > 0:
+#             time.sleep(20)
+            transaction = self.env['netpay.transaction'].search([])
+            logging.warning('TRNSACTION UI')
+            logging.warning(transaction)
+            order_id = self.env['pos.order'].search([('id','=', res[0]['id'])])
+            logging.warning('encontro orden')
+            logging.warning(order_id)
+            if order_id:
+                logging.warning(order_id.order_netpay_id)
+                if orders[0] and 'data' in orders[0] and 'netpay_orderId' in orders[0]['data'] and 'orderId' in orders[0]['data']['netpay_orderId']:
+                    order_id.order_netpay_id = orders[0]['data']['netpay_orderId']['orderId']
+        order_netpay = False
+        intentos = 0
+        return res
+
+
     def sale_netpay_ui(self, order):
         output = {'error': False, 'transaction': False}
         sesiones = self.env['pos.session'].search([('id', '=', order[0]['data']['pos_session_id'])])
+        logging.warning('EL NETPAY')
+        url = "https://avanguardiatech-sucasa-test-5901700.dev.odoo.com/web/dataset/call_kw/pos.order/sale_netpay_ui/transactions"
+        response = requests.get(url)
+
+
         if sesiones:
             refresh_token_config = False
             serial_number = False
             store_id = sesiones.config_id.store_id_netpay
             for sesion in sesiones:
-                if sesion.config_id.refresh_token == False:
-                    return super(PosOrder, self)._process_order(order, draft, existing_order)
-                else:
+                if sesion.config_id.refresh_token != False:
                     refresh_token_config = sesion.config_id.access_token
                     serial_number = sesion.config_id.serial_number
 
@@ -58,10 +125,12 @@ class PosOrder(models.Model):
                                 'amount': 0.00,
                                 'storeId': store_id,
                                 'folioNumber': False,
-                                'msi': "03",
+                                'msi': "",
                                 "traceability": {
                                         "idProducto": '',
-                                        "idTienda": store_id
+                                        "idTienda": store_id,
+                                        "order_id":'',
+                                        "serial_number":serial_number,
                                 }
                             }
 
@@ -80,10 +149,12 @@ class PosOrder(models.Model):
                 #
                 # }
                 #
+                logging.warning('JSON NETPAYU')
+                logging.warning(json_data)
                 if json_data:
 
                     # # auth=HTTPBasicAuth('trusted-app', 'secret')
-                    response = requests.post(url, data = json_data, headers = headers)
+                    response = requests.post(url, data = json.dumps(json_data), headers = headers)
                     # logging.warning(response)
                     # logging.warning(response.content)
                     logging.warning(response)
@@ -157,68 +228,72 @@ class PosOrder(models.Model):
 
         return True
 
-
-    def value_fields(self, dicc):
-        logging.warning('Funcion value_fields')
-        logging.warning(dicc)
-
-        orders = self.env['pos.order'].search([('id', '=', dicc[0]['id_order'])])
-        for order in orders:
-            if dicc[0]['TransactionId']:
-                order.transaccion_id = dicc[0]['TransactionId']
-            if dicc[0]['TransactionDate']:
-                order.transaccion_date = dicc[0]['TransactionId']
-            if dicc[0]['ProviderAuthorization']:
-                order.provider_authorizacion = dicc[0]['ProviderAuthorization']
-            if dicc[0]['AditionalInfo1']:
-                order.add_info1 = dicc[0]['AditionalInfo1']
-            if dicc[0]['AditionalInfo2']:
-                order.add_info2 = dicc[0]['AditionalInfo2']
-            if dicc[0]['AditionalInfo4']:
-                order.add_info3 = dicc[0]['AditionalInfo4']
-            if dicc[0]['LegalInformation']:
-                order.legal_info = dicc[0]['LegalInformation']
-            if 'reference1' in dicc and dicc[0]['reference1']:
-                order.reference_1 = dicc[0]['reference1']
-            if 'reference2' in dicc and dicc[0]['reference2']:
-                order.reference_2 = dicc[0]['reference2']
-            if 'reference3' in dicc and dicc[0]['reference3']:
-                order.reference_3 = dicc[0]['reference3']
-
-        return True
-
     def action_pos_order_cancel(self):
         logging.warning('Presionando al boton cancelar')
-        self.cancel_order_netpay()
+        logging.warning(self.cancel_hour)
+        logging.warning(self.order_cancel_netpay)
+        now = datetime.now()
+        last_minute = 00
+        last_hour = 00
+        minute_difference = 00
+        current_time = now.strftime("%H")
+        logging.warning(now)
+        if self.order_cancel_netpay == False:
+            if self.cancel_hour != False:
+                last_hour = self.cancel_hour.strftime('%H')
+                last_minute = self.cancel_hour.strftime('%M')
+                current_minute = now.strftime('%M')
+                minute_difference = int(current_minute) - int(last_minute)
+
+            if self.cancel_hour == False:
+                logging.warning('La hora es false')
+                self.cancel_hour = now.strftime("%Y-%m-%d %H:%M:%S")
+                self.cancel_order_netpay()
+                self.cancel_hour = now.strftime("%Y-%m-%d %H:%M:%S")
+
+            elif self.cancel_hour != False and int(current_time) > int(last_hour):
+                logging.warning('La hora es mayor')
+                self.cancel_order_netpay()
+                self.cancel_hour = now.strftime("%Y-%m-%d %H:%M:%S")
+            elif self.cancel_hour != False and minute_difference > 2:
+                logging.warning('2 minutos ya pasaron')
+                self.cancel_order_netpay()
+                self.cancel_hour = now.strftime("%Y-%m-%d %H:%M:%S")
+            else:
+                raise UserError('Por favor espere un momento')
         return True
 
     def cancel_order_netpay(self):
         logging.warning('Funcion cancel order')
         logging.warning('')
+        now = datetime.now()
 
         url = "http://nubeqa.netpay.com.mx:3334/integration-service/transactions/cancel"
 
         refresh_token_config = False
-        store_id = self.session_id.config_id.storeid
-        reference = self.pos_reference[5:]
-        reference = reference.replace('-','')
-#         order_id = reference.replace(' ','')
-        order_id = 1213134654
+        store_id = self.session_id.config_id.store_id_netpay
+        order_uid = self.pos_reference[5:]
+        order_uid = order_uid.replace(' ','')
+        logging.warning('QUE es reference CANCEL')
+#         reference = reference.replace('-','')
+        order_id = self.order_netpay_id
+
         if self.session_id.config_id.access_token:
             refresh_token_config = self.session_id.config_id.access_token
         logging.warning(order_id)
 
-        serial_id = self.session_id.config_id.serial_number
+        serial_number = self.session_id.config_id.serial_number
 
 #         payload = "{\r\n\"traceability\": {\"Ejemplo\":\"\"\r\n\t},\r\n  \"orderId\": \"{{orderId}}\",\r\n  \"serialNumber\": \"{{serialNumber}}\",\r\n  \"storeId\": \"{{storeId}}\"\r\n}"
         payload = {
-            "traceability": {},
-            "serialNumber": str(serial_id),
+            "traceability": {
+                "cancel": True,
+                "refresh_token": refresh_token_config
+            },
+            "serialNumber": str(serial_number),
             "orderId": str(order_id),
             "storeId": str(store_id),
         }
-
-#         payload = {"traceability": {}, "serialNumber": "{serialNumber}", "orderId": "{orderId}", "storeId": "{storeId}",}
 
         logging.warning('payload')
         logging.warning(payload)
@@ -227,7 +302,6 @@ class PosOrder(models.Model):
           'Authorization': 'Bearer '+str(refresh_token_config)
         }
 
-#         response = requests.request("POST", url, headers=headers, data = payload)
         response = requests.post(url, data = json.dumps(payload), headers = headers)
 
         logging.warning('Response --------')
@@ -235,5 +309,152 @@ class PosOrder(models.Model):
         logging.warning(response.content)
         logging.warning('')
 
-        print(response.text.encode('utf8'))
+#         payment_ids = self.session_id.config_id.serial_number
+
+        payment_method_id = self.env['pos.payment.method'].search([('netpay_terminal_identifier', '=', serial_number)])
+
+        if payment_method_id:
+
+            logging.warning('Entrando a los metodos de pago')
+            logging.warning(payment_method_id)
+#             model_payment = payment.payment_method_id
+
+            proxy_netpay_request = payment_method_id.proxy_netpay_request(payload, operation='cancel')
+            logging.warning('Respuesta de proxy ::::')
+            logging.warning(proxy_netpay_request)
+            if proxy_netpay_request == True:
+                latest_status = False
+
+            logging.warning('Que es proxy_netpay_request cancel')
+            logging.warning(proxy_netpay_request)
+            if proxy_netpay_request != True and 'code' in proxy_netpay_request and 'message' in proxy_netpay_request:
+                logging.warning('Error de prueba cancel')
+                logging.warning(proxy_netpay_request)
+                raise UserError(proxy_netpay_request['message'])
+
+            elif proxy_netpay_request != True and 'error' in proxy_netpay_request and 'message' in proxy_netpay_request['error']:
+                raise UserError(proxy_netpay_request['error']['message'])
+
+            logging.warning('Creo que ya pasaste la parte woajaja')
+
+        return True
+
+    def action_pos_order_reprint(self):
+        logging.warning('Boton para Reimprimir')
+        now = datetime.now()
+        last_minute = 0
+        last_hour = 0
+        minute_difference =0
+        last_hour = 0
+        current_time = now.strftime("%H")
+        logging.warning(self.id)
+
+        if self.reprint_time != False:
+            last_hour = self.reprint_time.strftime("%H")
+            last_minute = self.reprint_time.strftime("%M")
+            current_minute = now.strftime("%M")
+            minute_difference = int(current_minute) - int(last_minute)
+
+        if self.reprint_time == False:
+            logging.warning('Hora igual a False')
+            self.reprint_time = now.strftime("%Y-%m-%d %H:%M:%S")
+            self.reprint_order_netpay()
+            self.reprint_time = now.strftime("%Y-%m-%d %H:%M:%S")
+#             last_hour = self.reprint_time.strftime("%H")
+#             last_minute = self.reprint_time.strftime("%M")
+#             current_minute = now.strftime("%M")
+#             minute_difference = int(current_minute) - int(last_minute)
+#             logging.warning('ASSDSGFHYJ la hora')
+#             logging.warning(self.reprint_time)
+        elif self.reprint_time != False and int(current_time) > int(last_hour):
+            logging.warning('Hora mayor reprint')
+            logging.warning(self.reprint_time)
+            self.reprint_order_netpay()
+            self.reprint_time = now.strftime("%Y-%m-%d %H:%M:%S")
+        elif self.reprint_time != False and minute_difference > 2:
+            logging.warning('Minutos mayor reprint')
+            self.reprint_order_netpay()
+            self.reprint_time = now.strftime("%Y-%m-%d %H:%M:%S")
+        else:
+            raise UserError('Por favor espere un momento')
+
+        return True
+    def reprint_order_netpay(self):
+        now = datetime.now()
+        logging.warning(' reprint_order_netpay reprint')
+        if self.reprint_netpay == False:
+            url = "http://nubeqa.netpay.com.mx:3334/integration-service/transactions/reprint"
+            refresh_token_config = False
+    #         payload = "{\r\n\"traceability\": {\"Ejemplo\":\"\"\r\n\t},\r\n  \"orderId\": \"{{orderId}}\",\r\n  \"serialNumber\": \"{{serialNumber}}\",\r\n  \"storeId\": \"{{storeId}}\"\r\n}"
+            if self.session_id.config_id.access_token:
+                refresh_token_config = self.session_id.config_id.access_token
+
+            payload = {
+                "traceability":{
+                    "reprint": True,
+                    "refresh_token": refresh_token_config,
+                    "type":'reprint'
+                },
+                "orderId":'',
+                "serialNumber":'',
+                "storeId":'',
+            }
+
+            refresh_token_config = False
+            if self.session_id.config_id.access_token:
+                refresh_token_config = self.session_id.config_id.access_token
+
+            headers = {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer '+str(refresh_token_config)
+            }
+
+            store_id = False
+            order_id = False
+            serial_number = False
+            if self.session_id.config_id.serial_number:
+                serial_number = self.session_id.config_id.serial_number
+            if self.session_id.config_id.storeid:
+                store_id = self.session_id.config_id.storeid
+
+            if self.order_netpay_id:
+                order_id = self.order_netpay_id
+            payload["orderId"] = order_id
+            payload["serialNumber"] = serial_number
+            payload["storeId"] = store_id
+    #         response = requests.request("POST", url, headers=headers, data = payload)
+            response = requests.post(url, data = json.dumps(payload), headers = headers)
+            logging.warning('Response reprint-----')
+            logging.warning(response)
+            logging.warning(response.content)
+            payment_method_id = self.env['pos.payment.method'].search([('netpay_terminal_identifier', '=', serial_number)])
+
+            if payment_method_id:
+
+                logging.warning('Entrando a los metodos de pago')
+                logging.warning(payment_method_id)
+    #             model_payment = payment.payment_method_id
+
+                proxy_netpay_request = payment_method_id.proxy_netpay_request(payload, operation='reprint')
+                logging.warning('Respuesta de proxy ::::')
+                logging.warning(proxy_netpay_request)
+                if proxy_netpay_request == True:
+                    latest_status = False
+
+                logging.warning('Que es proxy_netpay_request reprint')
+                logging.warning(proxy_netpay_request)
+                if proxy_netpay_request != True and 'code' in proxy_netpay_request and 'message' in proxy_netpay_request:
+                    logging.warning('Error de prueba')
+                    logging.warning(proxy_netpay_request)
+                    raise UserError(proxy_netpay_request['message'])
+                elif proxy_netpay_request != True and 'error' in proxy_netpay_request and 'message' in proxy_netpay_request['error']:
+                    raise UserError(proxy_netpay_request['error']['message'])
+
+                logging.warning('Creo que ya pasaste la parte reprint woajaja')
+
+#         current_order = self.env['pos.order'].search([('id', '=', self.id)])
+#         current_order.reprint_time = now.strftime("%Y-%m-%d %H:%M:%S")
+#         logging.warning('Asignando nueva hora ')
+#         logging.warning(current_order.reprint_time)
+#         logging.warning(now)
         return True

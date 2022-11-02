@@ -18,7 +18,9 @@
     ],
     'assets':{
         'point_of_sale.assets': [
-            'pos_netpay_connector/static/src/js/models.js',
+#             'pos_netpay_connector/static/src/js/models.js',
+            'pos_netpay_connector/static/src/js/pos_netpay_connector.js',
+            'pos_netpay_connector/static/src/js/payment_netpay.js',
             # 'sucasa/static/src/js/Screens/ProductScreen/ProductScreen.js',
             # 'sucasa/static/src/js/ProductScreenButtons.js',
             # 'sucasa/static/src/js/Popups/CustomPopup.js',
