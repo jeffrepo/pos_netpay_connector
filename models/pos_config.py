@@ -61,7 +61,13 @@ class PosConfig(models.Model):
                 response_content = response.content.decode('utf8')
                 logging.warning(response_content)
                 if 'error_description' in response_content:
-                    raise UserError(response_content)
+                    value = self.get_first_token()
+                    logging.warning('lowwwwwwwwwwwwwwwwwwwwwwww')
+                    logging.warning(value)
+                    if value == True:
+                        self.get_refresh_token()
+                    else:
+                        raise UserError(response_content)
         return True
 
     def get_first_token(self):
@@ -71,5 +77,21 @@ class PosConfig(models.Model):
 
     def get_refresh_token(self):
         self.netpay_connection({'refresh_token': self.refresh_token})
+
+        return True
+
+    def activate_token_netapy(self):
+        logging.warning('Acción automatizada')
+        points_of_sale = self.env['pos.config'].search([
+            ('access_token', '!=', False),
+            ('serial_number', '!=', False),
+            ('refresh_token', '!=', False),
+            ('store_id_netpay', '!=', False)])
+        logging.warning(points_of_sale)
+        for point in points_of_sale:
+            logging.warning('punto')
+            logging.warning(point.name)
+            point.get_refresh_token()
+            logging.warning('Se ha llegado más lejos de refrescar el token ;D')
 
         return True
