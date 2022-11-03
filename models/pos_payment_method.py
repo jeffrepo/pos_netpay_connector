@@ -176,7 +176,6 @@ class PosPaymentMethod(models.Model):
                 logging.warning('error')
                 logging.warning(response_content)
                 json_loads = json.loads(response_content)
-                logging.warning(json_loads["error_description"])
                 if "error_description" in json_loads:
                     logging.warning('Entro al IF?')
                     return {
