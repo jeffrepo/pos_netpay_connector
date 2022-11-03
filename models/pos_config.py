@@ -35,7 +35,7 @@ class PosConfig(models.Model):
 
         url = "http://nubeqa.netpay.com.mx:3334/oauth-service/oauth/token"
         if 'new_token' in extra_info:
-            payload = 'grant_type=password&username=Nacional&password=netpay'
+            payload = 'grant_type=password&username=smartPos&password=netpay'
         if 'refresh_token' in extra_info:
             payload = 'grant_type=refresh_token&refresh_token='+str(extra_info['refresh_token'])
         headers = {
