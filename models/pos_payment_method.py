@@ -175,7 +175,6 @@ class PosPaymentMethod(models.Model):
                 response_content = req.content.decode('utf8')
                 logging.warning('error')
                 logging.warning(response_content)
-                logging.warning(response_content[0])
                 json_loads = json.loads(response_content)
                 logging.warning(json_loads["error_description"])
                 if "error_description" in json_loads:
@@ -187,6 +186,17 @@ class PosPaymentMethod(models.Model):
 
                         }
                     }
+                
+                if "message" in json_loads:
+                    logging.warning('entra message no error_description')
+                    return {
+                        'error':{
+                            'status_code': req.status_code,
+                            'message': json_loads["message"],
+
+                        }
+                    }
+                    
                         #output['error'] = response_content
 
             # Authentication error doesn't return JSON
