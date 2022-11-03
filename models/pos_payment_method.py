@@ -41,13 +41,13 @@ class PosPaymentMethod(models.Model):
         return self._proxy_netpay_request_direct(data, operation)
 
     def _get_netpay_endpoints(self, operation):
-        url = "http://nubeqa.netpay.com.mx:3334/integration-service/transactions/sale"
+        url = "https://suite.netpay.com.mx/gateway/integration-service/transactions/sale"
         if operation == 'sale':
-            url = "http://nubeqa.netpay.com.mx:3334/integration-service/transactions/sale"
+            url = "https://suite.netpay.com.mx/gateway/integration-service/transactions/sale"
         if operation == 'cancel':
-            url = "http://nubeqa.netpay.com.mx:3334/integration-service/transactions/cancel"
+            url = "https://suite.netpay.com.mx/gateway/integration-service/transactions/cancel"
         if operation == 'reprint':
-            url = "http://nubeqa.netpay.com.mx:3334/integration-service/transactions/reprint"
+            url = "https://suite.netpay.com.mx/gateway/integration-service/transactions/reprint"
 
         return url
 
