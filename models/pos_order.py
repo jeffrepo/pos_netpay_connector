@@ -106,7 +106,7 @@ class PosOrder(models.Model):
 
                 payload = ""
 
-                url = "http://nubeqa.netpay.com.mx:3334/integration-service/transactions/sale"
+                url = "https://suite.netpay.com.mx/gateway/integration-service/transactions/sale"
                 headers = {
                   'Content-Type': 'application/json',
                   'Authorization': 'Bearer '+str(refresh_token_config)
@@ -268,7 +268,7 @@ class PosOrder(models.Model):
         logging.warning('')
         now = datetime.now()
 
-        url = "http://nubeqa.netpay.com.mx:3334/integration-service/transactions/cancel"
+        url = "https://suite.netpay.com.mx/gateway/integration-service/transactions/cancel"
 
         refresh_token_config = False
         store_id = self.session_id.config_id.store_id_netpay
@@ -383,7 +383,7 @@ class PosOrder(models.Model):
         now = datetime.now()
         logging.warning(' reprint_order_netpay reprint')
         if self.reprint_netpay == False:
-            url = "http://nubeqa.netpay.com.mx:3334/integration-service/transactions/reprint"
+            url = "https://suite.netpay.com.mx/gateway/integration-service/transactions/reprint"
             refresh_token_config = False
     #         payload = "{\r\n\"traceability\": {\"Ejemplo\":\"\"\r\n\t},\r\n  \"orderId\": \"{{orderId}}\",\r\n  \"serialNumber\": \"{{serialNumber}}\",\r\n  \"storeId\": \"{{storeId}}\"\r\n}"
             if self.session_id.config_id.access_token:
