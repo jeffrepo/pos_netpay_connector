@@ -187,7 +187,7 @@ class PosOrder(models.Model):
 
         payload = ""
 
-        url = "http://nubeqa.netpay.com.mx:3334/oauth-service/oauth/token"
+        url = "https://suite.netpay.com.mx/gateway/oauth-service/oauth/token"
         if 'new_token' in extra_info:
             payload = 'grant_type=password&username=Nacional&password=netpay'
         if 'refresh_token' in extra_info:
