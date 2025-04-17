@@ -31,20 +31,6 @@ class PosOrder(models.Model):
     reprint_time = fields.Datetime('Fecha y hora última reimpresión')
 
 
-
-#     def search_order_pos(self, server_id):
-#         data = {'transaction': True}
-#         logging.warning('SEARRCH ORDER POS NEW')
-#         logging.warning(server_id)
-#         if len(server_id) > 0:
-#             time.sleep(20)
-#             order_id = self.env['pos.order'].search([('id','=',server_id[0])])
-#             logging.warning('encontro orden')
-#             logging.warning(order_id)
-#             if order_id:
-#                 logging.warning(order_id.order_netpay_id)
-#         return data
-
     def delete_values(self, id):
         logging.warning('Ha limpiar la respuesta ')
         logging.warning(id[0])
@@ -64,7 +50,6 @@ class PosOrder(models.Model):
 
         logging.warning('SEARRCH create_from_ui ORDER POS NEW')
         if res and res[0]['id'] > 0:
-#             time.sleep(20)
             transaction = self.env['netpay.transaction'].search([])
             logging.warning('TRNSACTION UI')
             logging.warning(transaction)
@@ -84,9 +69,8 @@ class PosOrder(models.Model):
         output = {'error': False, 'transaction': False}
         sesiones = self.env['pos.session'].search([('id', '=', order[0]['data']['pos_session_id'])])
         logging.warning('EL NETPAY')
-        url = "https://avanguardiatech-sucasa-test-5901700.dev.odoo.com/web/dataset/call_kw/pos.order/sale_netpay_ui/transactions"
+        url = "https://quemen.odoo.com/web/dataset/call_kw/pos.order/sale_netpay_ui/transactions"
         response = requests.get(url)
-
 
         if sesiones:
             refresh_token_config = False
@@ -107,6 +91,7 @@ class PosOrder(models.Model):
                 payload = ""
 
                 url = "https://suite.netpay.com.mx/gateway/integration-service/transactions/sale"
+                #url = "https://api-154.api-netpay.com/integration-service/transactions/sale"
                 headers = {
                   'Content-Type': 'application/json',
                   'Authorization': 'Bearer '+str(refresh_token_config)
@@ -140,15 +125,6 @@ class PosOrder(models.Model):
                             json_data['folioNumber'] = order[0]['id']
                             json_data['traceability']['idProducto'] = order[0]['id']
 
-                            # for linea in order[0]['data']['lines']:
-                            #     logging.warning('la linea')
-                            #     logging.warning(linea)
-                            #     traceability_dic
-
-                # traceability_dic = {
-                #
-                # }
-                #
                 logging.warning('JSON NETPAYU')
                 logging.warning(json_data)
                 if json_data:
@@ -188,8 +164,11 @@ class PosOrder(models.Model):
         payload = ""
 
         url = "https://suite.netpay.com.mx/gateway/oauth-service/oauth/token"
+        #url = "https://api-154.api-netpay.com/integration-service/oauth/token"
         if 'new_token' in extra_info:
-            payload = 'grant_type=password&username=smartPos&password=netpay'
+            #payload = 'grant_type=password&username=smartPos&password=netpay'
+            
+            payload = 'grant_type=password&username=Nacional&password=netpay'
         if 'refresh_token' in extra_info:
             payload = 'grant_type=refresh_token&refresh_token='+str(extra_info['refresh_token'])
         headers = {
@@ -198,6 +177,7 @@ class PosOrder(models.Model):
         }
         # auth=HTTPBasicAuth('trusted-app', 'secret')
         response = requests.post(url, data = payload, headers = headers)
+        logging.warning("GET TOKEN PY")
         logging.warning(response)
         logging.warning(response.content)
         if response.status_code == 200:
@@ -275,7 +255,6 @@ class PosOrder(models.Model):
         order_uid = self.pos_reference[5:]
         order_uid = order_uid.replace(' ','')
         logging.warning('QUE es reference CANCEL')
-#         reference = reference.replace('-','')
         order_id = self.order_netpay_id
 
         if self.session_id.config_id.access_token:
@@ -309,15 +288,12 @@ class PosOrder(models.Model):
         logging.warning(response.content)
         logging.warning('')
 
-#         payment_ids = self.session_id.config_id.serial_number
-
         payment_method_id = self.env['pos.payment.method'].search([('netpay_terminal_identifier', '=', serial_number)])
 
         if payment_method_id:
 
             logging.warning('Entrando a los metodos de pago')
             logging.warning(payment_method_id)
-#             model_payment = payment.payment_method_id
 
             proxy_netpay_request = payment_method_id.proxy_netpay_request(payload, operation='cancel')
             logging.warning('Respuesta de proxy ::::')
@@ -360,12 +336,7 @@ class PosOrder(models.Model):
             self.reprint_time = now.strftime("%Y-%m-%d %H:%M:%S")
             self.reprint_order_netpay()
             self.reprint_time = now.strftime("%Y-%m-%d %H:%M:%S")
-#             last_hour = self.reprint_time.strftime("%H")
-#             last_minute = self.reprint_time.strftime("%M")
-#             current_minute = now.strftime("%M")
-#             minute_difference = int(current_minute) - int(last_minute)
-#             logging.warning('ASSDSGFHYJ la hora')
-#             logging.warning(self.reprint_time)
+
         elif self.reprint_time != False and int(current_time) > int(last_hour):
             logging.warning('Hora mayor reprint')
             logging.warning(self.reprint_time)
@@ -451,10 +422,4 @@ class PosOrder(models.Model):
                     raise UserError(proxy_netpay_request['error']['message'])
 
                 logging.warning('Creo que ya pasaste la parte reprint woajaja')
-
-#         current_order = self.env['pos.order'].search([('id', '=', self.id)])
-#         current_order.reprint_time = now.strftime("%Y-%m-%d %H:%M:%S")
-#         logging.warning('Asignando nueva hora ')
-#         logging.warning(current_order.reprint_time)
-#         logging.warning(now)
         return True

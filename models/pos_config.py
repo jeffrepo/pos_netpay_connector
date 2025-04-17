@@ -20,13 +20,6 @@ class PosConfig(models.Model):
     refresh_token = fields.Char('Refresh Token')
     serial_number = fields.Char('Serial number')
     store_id_netpay = fields.Char('Store id netpay')
-    # def eli_park(self):
-    #
-
-
-    def holra(self):
-        return False
-
 
     def netpay_connection(self, extra_info):
         logging.warning('test')
@@ -34,8 +27,11 @@ class PosConfig(models.Model):
         payload = ""
 
         url = "https://suite.netpay.com.mx/gateway/oauth-service/oauth/token"
+        #url = "https://api-154.api-netpay.com/oauth-service/oauth/token"
         if 'new_token' in extra_info:
-            payload = 'grant_type=password&username=smartPos&password=netpay'
+            #payload = 'grant_type=password&username=smartPos&password=netpay'
+            payload = 'grant_type=password&username=Nacional&password=netpay'
+            #payload = 'grant_type=password&username=trusted-app&password=netpay'
         if 'refresh_token' in extra_info:
             payload = 'grant_type=refresh_token&refresh_token='+str(extra_info['refresh_token'])
         headers = {
@@ -44,6 +40,7 @@ class PosConfig(models.Model):
         }
         # auth=HTTPBasicAuth('trusted-app', 'secret')
         response = requests.post(url, data = payload, headers = headers)
+        logging.warning("netpay_connection POS CONFIG")
         logging.warning(response)
         logging.warning(response.content)
         if response.status_code == 200:
@@ -72,12 +69,10 @@ class PosConfig(models.Model):
 
     def get_first_token(self):
         self.netpay_connection({'new_token'})
-
         return True
 
     def get_refresh_token(self):
         self.netpay_connection({'refresh_token': self.refresh_token})
-
         return True
 
     def activate_token_netapy(self):
@@ -93,5 +88,4 @@ class PosConfig(models.Model):
             logging.warning(point.name)
             point.get_refresh_token()
             logging.warning('Se ha llegado más lejos de refrescar el token ;D')
-
         return True

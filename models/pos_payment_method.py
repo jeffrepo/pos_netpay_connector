@@ -42,8 +42,10 @@ class PosPaymentMethod(models.Model):
 
     def _get_netpay_endpoints(self, operation):
         url = "https://suite.netpay.com.mx/gateway/integration-service/transactions/sale"
+        #url = "https://api-154.api-netpay.com/integration-service/transactions/sale"
         if operation == 'sale':
             url = "https://suite.netpay.com.mx/gateway/integration-service/transactions/sale"
+            #url = "https://api-154.api-netpay.com/integration-service/transactions/sale"
         if operation == 'cancel':
             url = "https://suite.netpay.com.mx/gateway/integration-service/transactions/cancel"
         if operation == 'reprint':
@@ -61,12 +63,15 @@ class PosPaymentMethod(models.Model):
         logging.warning('latest_response, cruzar dedos')
         logging.warning(latest_response)
         latest_response = json.loads(latest_response) if latest_response else False
-
+        
 #         logging.warning(latest_response[0])
         logging.warning('')
+        logging.warning(order_uid)
         if latest_response != False:
             if "folioNumber" in latest_response:
-
+                logging.warning("comparando UID")
+                logging.warning(order_uid)
+                logging.warning(latest_response['folioNumber'])
 #             latest_response_dumps=json.dumps(latest_response)
                 if order_uid == latest_response['folioNumber']:
                     logging.warning('Si son iguales')
@@ -80,16 +85,7 @@ class PosPaymentMethod(models.Model):
         return {
             'latest_response': latest_response,
         }
-
-#     def proxy_netpay_request(self, data, operation=False):
-#         ''' Necessary because Adyen's endpoints don't have CORS enabled '''
-#         if data['orderId'] == 'Payment': # Clear only if it is a payment request
-#             self.sudo().netpay_latest_response = ''  # avoid handling old responses multiple times
-
-#         if not operation:
-#             operation = 'terminal_request'
-
-#         return self._proxy_netpay_request_direct(data, operation)
+        
 
     def _is_write_forbidden(self, fields):
         whitelisted_fields = set(('netpay_latest_response', 'netpay_latest_diagnosis'))
@@ -101,6 +97,8 @@ class PosPaymentMethod(models.Model):
         for x in self:
             x.ensure_one()
         TIMEOUT = 10
+        logging.warning("DATA--**++")
+        logging.warning(data)
         logging.warning('_proxy_netpay_request_direct')
         logging.warning('request to adyen\n%s' + str(data))
 
@@ -136,13 +134,16 @@ class PosPaymentMethod(models.Model):
 
             json_data = {
                 'serialNumber': serial_number,
+                #'serialNumber': "1492340247",
                 'amount': amount,
                 'storeId': store_id,
+                #'storeId': "9194",
                 'folioNumber': folio_number,
+                #'folioNumber': "test-SUCASA",
                 'msi': "",
                 "traceability": {
                     'type':'sale',
-                    'serial_number':serial_number
+                    'serial_number':"1492340247",
                 }
             }
             logging.warning('endpoint--')
@@ -196,20 +197,6 @@ class PosPaymentMethod(models.Model):
                         }
                     }
                     
-                        #output['error'] = response_content
-
-            # Authentication error doesn't return JSON
-            #if req.status_code == 401:
-             #   return {
-              #      'error': {
-               #         'status_code': req.status_code,
-                #        'message': req.text
-                 #   }
-                #}
-
-            #if req.text == 'ok':
-             #   return True
-
             return req.json()
 
         if operation == 'cancel':
