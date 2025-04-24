@@ -208,40 +208,41 @@ class PosOrder(models.Model):
 
         return True
 
-    def action_pos_order_cancel(self):
-        logging.warning('Presionando al boton cancelar')
-        logging.warning(self.cancel_hour)
-        logging.warning(self.order_cancel_netpay)
-        now = datetime.now()
-        last_minute = 00
-        last_hour = 00
-        minute_difference = 00
-        current_time = now.strftime("%H")
-        logging.warning(now)
-        if self.order_cancel_netpay == False:
-            if self.cancel_hour != False:
-                last_hour = self.cancel_hour.strftime('%H')
-                last_minute = self.cancel_hour.strftime('%M')
-                current_minute = now.strftime('%M')
-                minute_difference = int(current_minute) - int(last_minute)
+    #De moment no funcionará para cancelaciones
+    # def action_pos_order_cancel(self):
+    #     logging.warning('Presionando al boton cancelar')
+    #     logging.warning(self.cancel_hour)
+    #     logging.warning(self.order_cancel_netpay)
+    #     now = datetime.now()
+    #     last_minute = 00
+    #     last_hour = 00
+    #     minute_difference = 00
+    #     current_time = now.strftime("%H")
+    #     logging.warning(now)
+    #     if self.order_cancel_netpay == False:
+    #         if self.cancel_hour != False:
+    #             last_hour = self.cancel_hour.strftime('%H')
+    #             last_minute = self.cancel_hour.strftime('%M')
+    #             current_minute = now.strftime('%M')
+    #             minute_difference = int(current_minute) - int(last_minute)
 
-            if self.cancel_hour == False:
-                logging.warning('La hora es false')
-                self.cancel_hour = now.strftime("%Y-%m-%d %H:%M:%S")
-                self.cancel_order_netpay()
-                self.cancel_hour = now.strftime("%Y-%m-%d %H:%M:%S")
+    #         if self.cancel_hour == False:
+    #             logging.warning('La hora es false')
+    #             self.cancel_hour = now.strftime("%Y-%m-%d %H:%M:%S")
+    #             self.cancel_order_netpay()
+    #             self.cancel_hour = now.strftime("%Y-%m-%d %H:%M:%S")
 
-            elif self.cancel_hour != False and int(current_time) > int(last_hour):
-                logging.warning('La hora es mayor')
-                self.cancel_order_netpay()
-                self.cancel_hour = now.strftime("%Y-%m-%d %H:%M:%S")
-            elif self.cancel_hour != False and minute_difference > 2:
-                logging.warning('2 minutos ya pasaron')
-                self.cancel_order_netpay()
-                self.cancel_hour = now.strftime("%Y-%m-%d %H:%M:%S")
-            else:
-                raise UserError('Por favor espere un momento')
-        return True
+    #         elif self.cancel_hour != False and int(current_time) > int(last_hour):
+    #             logging.warning('La hora es mayor')
+    #             self.cancel_order_netpay()
+    #             self.cancel_hour = now.strftime("%Y-%m-%d %H:%M:%S")
+    #         elif self.cancel_hour != False and minute_difference > 2:
+    #             logging.warning('2 minutos ya pasaron')
+    #             self.cancel_order_netpay()
+    #             self.cancel_hour = now.strftime("%Y-%m-%d %H:%M:%S")
+    #         else:
+    #             raise UserError('Por favor espere un momento')
+    #     return True
 
     def cancel_order_netpay(self):
         logging.warning('Funcion cancel order')
