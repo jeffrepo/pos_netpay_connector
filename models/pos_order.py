@@ -66,6 +66,7 @@ class PosOrder(models.Model):
 
 
     def sale_netpay_ui(self, order):
+        print("order in sale_netpay_ui", order)
         output = {'error': False, 'transaction': False}
         sesiones = self.env['pos.session'].search([('id', '=', order[0]['data']['pos_session_id'])])
         logging.warning('EL NETPAY')
@@ -116,6 +117,7 @@ class PosOrder(models.Model):
                                         "idTienda": store_id,
                                         "order_id":'',
                                         "serial_number":serial_number,
+                                        "payment_method_id": order[0]['data']['payment_method_id'],
                                 }
                             }
 

@@ -132,6 +132,16 @@ class PosPaymentMethod(models.Model):
                 if "serial_number" in data["traceability"]:
                     serial_number = data["traceability"]["serial_number"]
 
+            payment_method_id = 0
+            if "traceability" in data:
+                if "serial_number" in data["traceability"]:
+                    payment_method_id = data["traceability"]["payment_method_id"]
+
+            terminalId = 0
+            if "traceability" in data:
+                if "terminalId" in data["traceability"]:
+                    terminalId = data["traceability"]["terminalId"]
+
             json_data = {
                 'serialNumber': serial_number,
                 #'serialNumber': "1492340247",
@@ -144,6 +154,8 @@ class PosPaymentMethod(models.Model):
                 "traceability": {
                     'type':'sale',
                     'serial_number':"1492340247",
+                    'payment_method_id':payment_method_id,
+                    'terminalId': terminalId,
                 }
             }
             logging.warning('endpoint--')

@@ -30,26 +30,31 @@ class PosRoute(http.Controller):
 
         logging.warning('EXTERNAL NETPAY CONECTION HTTP')
         json_data = json.loads(request.httprequest.data)
+        logging.warning("main.py json_data 1 ")
         logging.warning(json_data)
 
         data = {"code": 300, "message": "error"}
         list_keys = ["folioNumber", "internalNumber", "tableId", "listOfPays", "tipTotalAmount", "totalAmount"]
         if ("orderId" not in json_data) and ("traceability" in json_data) and ("terminalId" in json_data) and ("responseCode" in json_data):
-            payment_method = request.env['pos.payment.method'].sudo().search([('netpay_terminal_identifier', '=', json_data['traceability']['serial_number'])], limit=1)
+            # payment_method = request.env['pos.payment.method'].sudo().search([('netpay_terminal_identifier', '=', json_data['traceability']['serial_number'])], limit=1)
+            payment_method = request.env['pos.payment.method'].sudo().search([('id', '=', int(json_data['traceability']['payment_method_id']))], limit=1)
             data = {"code": "00", "message": "Recibido"}
             payment_method.netpay_latest_response = json.dumps(json_data)
         if ("terminalId" in json_data) and ("responseCode" in json_data) and (json_data["responseCode"] == "02"):
-            payment_method = request.env['pos.payment.method'].sudo().search([('netpay_terminal_identifier', '=', json_data['traceability']['serial_number'])], limit=1)
+            payment_method = request.env['pos.payment.method'].sudo().search([('id', '=', int(json_data['traceability']['payment_method_id']))], limit=1)
             data = {"code": "00", "message": "Recibido"}
             payment_method.netpay_latest_response = json.dumps(json_data)
         if ("responseCode" in json_data) and ("traceability" in json_data) and ("type" in json_data["traceability"]) and (json_data["traceability"]["type"] == "sale") and ("terminalId" not in json_data) and ("serial_number" in json_data["traceability"]):
-            payment_method = request.env['pos.payment.method'].sudo().search([('netpay_terminal_identifier', '=', json_data['traceability']['serial_number'])], limit=1)
+            payment_method = request.env['pos.payment.method'].sudo().search([('id', '=', int(json_data['traceability']['payment_method_id']))], limit=1)
             logging.warning('Cancelada por el usuario')
             data = {"code": "00", "message": "Recibido"}
             payment_method.netpay_latest_response = json.dumps(json_data)
 
         if "orderId" in json_data and "folioNumber" in json_data and 'terminalId' in json_data:
-            payment_method = request.env['pos.payment.method'].sudo().search([('netpay_terminal_identifier', '=', json_data['terminalId'])], limit=1)
+            # payment_method = request.env['pos.payment.method'].sudo().search([('netpay_terminal_identifie', '=', json_data['terminalId'])], limit=1)
+            
+            payment_method = request.env['pos.payment.method'].sudo().search([('id', '=', int(json_data['traceability']['payment_method_id']))], limit=1)
+            
             logging.warning('main 2')
             if payment_method:
                 payment_method.netpay_latest_response = False

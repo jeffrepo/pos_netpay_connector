@@ -16,7 +16,7 @@ odoo.define('pos_netpay_connector.payment', function(require) {
                     var data = this._terminal_pay_data();
                     var apikey = data.PaymentMethod.terminal_api_key
                     var apipswd = data.PaymentMethod.terminal_api_pwd
-                    var terminalId = data.PaymentMethod.terminal_id
+                    var terminalId = data.PaymentMethod
                     this._reset_state();
                    // You can send your request from here to the terminal, and based on the response from your
                   // terminal you can set payment_status to success / retry / waiting.
@@ -52,7 +52,9 @@ odoo.define('pos_netpay_connector.payment', function(require) {
                     var order = this.pos.get_order();
                     var config = this.pos.config;
                     var line = order.selected_paymentline;
-    
+                    console.log("order " + order);
+                    console.log("config " + config);
+                    console.log("line " + line);
                     var serial_number = false;
                     if(config.serial_number){
                         serial_number = config.serial_number;
@@ -75,6 +77,11 @@ odoo.define('pos_netpay_connector.payment', function(require) {
                     if (config.serial_number){
                         serial_number = config.serial_number;
                     }
+
+                    var payment_method_id = 0;
+                    if (line.payment_method){
+                        payment_method_id = line.payment_method.id
+                    }
                     console.log("line")
                     console.log(line)
                     var data = {
@@ -88,9 +95,11 @@ odoo.define('pos_netpay_connector.payment', function(require) {
                             'type': "sale",
                             'config_id': config_id,
                             'serial_number': serial_number,
+                            'payment_method_id': payment_method_id,
+                            'terminalId': line.payment_method.terminal_id,
                         }
                     }
-    
+                    
                     return data;
                 },
     
@@ -190,7 +199,7 @@ odoo.define('pos_netpay_connector.payment', function(require) {
                             'TimeStamp': moment().format(),
                             'Currency': this.pos.currency.name,
                             'RequestedAmount': line.amount,
-                            'PaymentMethod': this.payment_method
+                            'PaymentMethod': this.payment_method.terminal_id
                       };
                      return data;
                  },
