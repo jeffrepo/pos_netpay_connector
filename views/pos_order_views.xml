@@ -62,7 +62,7 @@
   </record>
 
 
-    <record id="pos_payment_method_view_form_inherit_pos_econduit" model="ir.ui.view">
+    <!-- <record id="pos_payment_method_view_form_inherit_pos_econduit" model="ir.ui.view">
         <field name="name">pos.payment.method.form.inherit.terminal</field>
         <field name="model">pos.payment.method</field>
         <field name="inherit_id" ref="point_of_sale.pos_payment_method_view_form"/>
@@ -84,6 +84,6 @@
 
            </xpath>
         </field>
-    </record>
+    </record> -->
 
 </odoo>

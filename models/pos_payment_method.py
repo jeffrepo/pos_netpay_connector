@@ -33,6 +33,7 @@ class PosPaymentMethod(models.Model):
     terminal_api_key = fields.Char('API Key')
     terminal_api_pwd = fields.Char('API Password')
     terminal_id = fields.Char('Terminal ID')
+    administrators_only = fields.Boolean(string="Solo administradores", default=False)
 
 
     def proxy_netpay_request(self, data, operation):

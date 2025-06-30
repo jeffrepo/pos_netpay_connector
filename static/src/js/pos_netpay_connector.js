@@ -3,7 +3,7 @@ odoo.define('pos_netpay_connector.models', function(require) {
     var PaymentTerminal = require('pos_netpay_connector.payment');
 
     models.register_payment_method('netpay', PaymentTerminal);
-    models.load_fields('pos.payment.method', ['terminal_api_key', 'terminal_api_pwd', 'terminal_id']);
+    models.load_fields('pos.payment.method', ['terminal_api_key', 'terminal_api_pwd', 'terminal_id', 'administrators_only']);
 
    var _payterminal = models.Paymentline.prototype;
    //var _payecoduit = models.Paymentline.prototype
