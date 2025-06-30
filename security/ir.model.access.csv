@@ -1,0 +1,2 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+pos_netpay_connector.access_netpay_transaction,access_netpay_transaction,pos_netpay_connector.model_netpay_transaction,base.group_user,1,1,1,1
