@@ -26,8 +26,10 @@ class PosPaymentMethod(models.Model):
           return super(PosPaymentMethod, self)._get_payment_terminal_selection() + [('netpay', 'netpay')]
 
     netpay_test_mode = fields.Boolean(help='Run transactions in the test environment.')
-    netpay_latest_response = fields.Char(help='Technical field used to buffer the latest asynchronous notification from Adyen.', copy=False, groups='base.group_erp_manager')
-    netpay_latest_diagnosis = fields.Char(help='Technical field used to determine if the terminal is still connected.', copy=False, groups='base.group_erp_manager')
+    netpay_latest_response = fields.Char(help='Technical field used to buffer the latest asynchronous notification from Adyen.', copy=False)
+    # , groups='base.group_erp_manager'
+    netpay_latest_diagnosis = fields.Char(help='Technical field used to determine if the terminal is still connected.', copy=False)
+    # , groups='base.group_erp_manager'
     netpay_terminal_identifier = fields.Char(help='[Terminal model]-[Serial number], for example: P400Plus-123456789', copy=False)
    #credentials
     terminal_api_key = fields.Char('API Key')
