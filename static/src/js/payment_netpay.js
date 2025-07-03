@@ -13,6 +13,10 @@ odoo.define('pos_netpay_connector.payment', function(require) {
                     this._super.apply(this, arguments);
                     var line = this.pos.get_order().selected_paymentline;
                     var order = this.pos.get_order();
+                    // 👇 Limpia el estado de pago anterior si está en retry o force_done
+                    if (line.get_payment_status() === 'retry' || line.get_payment_status() === 'force_done') {
+                        line.set_payment_status('pending');  // o null si se quiere dejar en blanco
+                    }
                     var data = this._terminal_pay_data();
                     var apikey = data.PaymentMethod.terminal_api_key
                     var apipswd = data.PaymentMethod.terminal_api_pwd
