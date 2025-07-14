@@ -278,7 +278,7 @@ odoo.define('pos_netpay_connector.payment', function(require) {
                     console.log("_poll_for_response 2");
                     var notification = status.latest_response;
                     var order = self.pos.get_order();
-                    var line = self.pending_adyen_line();
+                    var line = self.pending_netpay_line();
     
                     var additional_response = new URLSearchParams(notification.message);
                     console.log("notification " + notification + "notification.orderId "+notification.orderId)
