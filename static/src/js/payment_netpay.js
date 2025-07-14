@@ -210,6 +210,7 @@ odoo.define('pos_netpay_connector.payment', function(require) {
     
              _handle_odoo_connection_failure: function (data) {
                  // handle timeout
+                 var self = this;
                  var line = this.pending_netpay_line();
                  if (line) {
                      line.set_payment_status('retry');
