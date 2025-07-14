@@ -219,7 +219,7 @@ odoo.define('pos_netpay_connector.payment', function(require) {
                 return Promise.reject(data); // prevent subsequent onFullFilled's from being called
              },
     
-             pending_adyen_line() {
+             pending_netpay_line() {
                  return this.pos.get_order().paymentlines.find(
                  paymentLine => paymentLine.payment_method.use_payment_terminal === 'netpay' && (!paymentLine.is_done()));
              },
