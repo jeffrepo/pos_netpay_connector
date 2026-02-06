@@ -9,7 +9,7 @@ import requests
 from requests.auth import HTTPBasicAuth
 import base64
 import logging
-import xmltodict, json
+import json
 import random
 import uuid
 import time
