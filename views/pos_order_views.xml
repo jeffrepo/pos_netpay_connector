@@ -14,7 +14,7 @@
             <xpath expr="//button[@name='action_pos_order_invoice']" position='after'>
                 <button name="action_pos_order_cancel"
                   string="Cancelar" class="oe_highlight"
-                  type="object" attrs="{'invisible': [('order_cancel_netpay', '==', 'True')]}"/>
+                  type="object" invisible="order_cancel_netpay"/>
             </xpath>
 
             <xpath expr="//button[@name='action_pos_order_cancel']" position='after'>

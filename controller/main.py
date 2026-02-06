@@ -4,7 +4,7 @@ import logging
 
 from odoo import http
 
-from odoo.http import request, Response, JsonRequest
+from odoo.http import request, Response
 from odoo.tools.translate import _
 from odoo.tools import date_utils
 import logging
@@ -29,7 +29,8 @@ class PosRoute(http.Controller):
     def get_sessions(self):
 
         logging.warning('EXTERNAL NETPAY CONECTION HTTP')
-        json_data = json.loads(request.httprequest.data)
+        #json_data = json.loads(request.httprequest.data)
+        json_data = request.jsonrequest
         logging.warning("main.py json_data 1 ")
         logging.warning(json_data)
 
@@ -94,7 +95,7 @@ class PosRoute(http.Controller):
         logging.warning('--after alll')
 
         headers = {'Content-Type': 'application/json'}
-        request._json_response = self.alternative_json_response.__get__(request, JsonRequest)
+        #request._json_response = self.alternative_json_response.__get__(request, JsonRequest)
         logging.warning('Devolviendo el ultimo data')
         logging.warning(data)
         return data

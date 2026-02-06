@@ -6,18 +6,10 @@
         <field name="inherit_id" ref="point_of_sale.pos_payment_method_view_form"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='use_payment_terminal']" position="after">
-                <field name="terminal_api_key"
-                            attrs="{'invisible': [('use_payment_terminal', '!=', 'netpay')],
-                                        'required': [('use_payment_terminal', '=', 'netpay')]}"/>
-                <field name="terminal_api_pwd" password="True"
-                            attrs="{'invisible': [('use_payment_terminal', '!=', 'netpay')],
-                                        'required': [('use_payment_terminal', '=', 'netpay')]}"/>
-                <field name="terminal_id"
-                            attrs="{'invisible': [('use_payment_terminal', '!=', 'netpay')],
-                                        'required': [('use_payment_terminal', '=', 'netpay')]}"/>
-                <field name="netpay_terminal_identifier"
-                            attrs="{'invisible': [('use_payment_terminal', '!=', 'netpay')],
-                                        'required': [('use_payment_terminal', '=', 'netpay')]}"/>
+                <field name="terminal_api_key" invisible="use_payment_terminal != 'netpay'" required="use_payment_terminal == 'netpay'"/>
+                <field name="terminal_api_pwd" password="True" invisible="use_payment_terminal != 'netpay'" required="use_payment_terminal == 'netpay'"/>
+                <field name="terminal_id" invisible="use_payment_terminal != 'netpay'" required="use_payment_terminal == 'netpay'"/>
+                <field name="netpay_terminal_identifier" invisible="use_payment_terminal != 'netpay'" required="use_payment_terminal == 'netpay'"/>
                 <field name="netpay_latest_response"/>
            </xpath>
            <field name="journal_id" position="after">
