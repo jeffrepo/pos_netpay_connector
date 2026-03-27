@@ -1,89 +1,20 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="utf-8"?>
 <odoo>
-
-    <record id="view_pos_netpay_connector_pos_form_inherit" model="ir.ui.view">
-        <field name="name">pos_netpay_connector.form.view.inherit</field>
+    <record id="view_pos_order_form_inherit_netpay" model="ir.ui.view">
+        <field name="name">pos.order.form.netpay</field>
         <field name="model">pos.order</field>
-        <field name="inherit_id" ref="point_of_sale.view_pos_pos_form"></field>
+        <field name="inherit_id" ref="point_of_sale.view_pos_pos_form"/>
         <field name="arch" type="xml">
-
-            <xpath expr="//field[@name='company_id']" position='after'>
-                <field name="order_cancel_netpay" string="Cancelar orden" />
+            <xpath expr="//group" position="inside">
+                <group string="Netpay">
+                    <field name="order_netpay_id"/>
+                    <field name="netpaystatus"/>
+                    <field name="reprint_netpay"/>
+                    <field name="order_cancel_netpay"/>
+                    <field name="cancel_hour"/>
+                    <field name="reprint_time"/>
+                </group>
             </xpath>
-
-            <xpath expr="//button[@name='action_pos_order_invoice']" position='after'>
-                <button name="action_pos_order_cancel"
-                  string="Cancelar" class="oe_highlight"
-                  type="object" invisible="order_cancel_netpay"/>
-            </xpath>
-
-            <xpath expr="//button[@name='action_pos_order_cancel']" position='after'>
-                <button name="action_pos_order_reprint" string="Reimprimir" class="oe_highlight" type="object"/>
-            </xpath>
-
-            <xpath expr="//field[@name='company_id']" position='after'>
-                <field name="order_netpay_id" string="NETPAY Order id"/>
-            </xpath>
-
-            <xpath expr="//field[@name='pos_reference']" position='after'>
-                <field name='cancel_hour'/>
-            </xpath>
-
-            <xpath expr="//field[@name='order_cancel_netpay']" position='after'>
-                <field name='reprint_time'/>
-            </xpath>
-
         </field>
     </record>
-
-
-
-   <record id="res_config_view_form_inherit_pos_econduit" model="ir.ui.view">
-         <field name="name">res.config.form.inherit.pos.terminal</field>
-         <field name="model">res.config.settings</field>
-
-         <field name="inherit_id" ref="point_of_sale.res_config_settings_view_form"/>
-         <field name="arch" type="xml">
-               <div id="o_settings_use_payment_terminals" position="inside">
-                      <div class="col-12 col-lg-6 o_setting_box" title="The transactions are processed by terminal. Set your
-                                                                                                    terminal device on the related payment method.">
-                            <div class="o_setting_left_pane">
-                                     <field name="module_pos_netpay"/>
-                            </div>
-                            <div class="o_setting_right_pane">
-                                     <label for="module_pos_netpay" string="POS netpay"/>
-                                     <div class="text-muted">
-                                            Accept payments with an payment payment terminal
-                                     </div>
-                            </div>
-                      </div>
-             </div>
-         </field>
-  </record>
-
-
-    <!-- <record id="pos_payment_method_view_form_inherit_pos_econduit" model="ir.ui.view">
-        <field name="name">pos.payment.method.form.inherit.terminal</field>
-        <field name="model">pos.payment.method</field>
-        <field name="inherit_id" ref="point_of_sale.pos_payment_method_view_form"/>
-        <field name="arch" type="xml">
-           <xpath expr="//field[@name='use_payment_terminal']" position="after">
-              <field name="terminal_api_key"
-                        attrs="{'invisible': [('use_payment_terminal', '!=', 'netpay')],
-                                     'required': [('use_payment_terminal', '=', 'netpay')]}"/>
-              <field name="terminal_api_pwd" password="True"
-                        attrs="{'invisible': [('use_payment_terminal', '!=', 'netpay')],
-                                     'required': [('use_payment_terminal', '=', 'netpay')]}"/>
-              <field name="terminal_id"
-                        attrs="{'invisible': [('use_payment_terminal', '!=', 'netpay')],
-                                     'required': [('use_payment_terminal', '=', 'netpay')]}"/>
-               <field name="netpay_terminal_identifier"
-                        attrs="{'invisible': [('use_payment_terminal', '!=', 'netpay')],
-                                     'required': [('use_payment_terminal', '=', 'netpay')]}"/>
-               <field name="netpay_latest_response"/>
-
-           </xpath>
-        </field>
-    </record> -->
-
 </odoo>
