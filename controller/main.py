@@ -3,69 +3,100 @@ import json
 import logging
 
 from odoo import http
-from odoo.http import request, Response, JsonRequest
+from odoo.http import request, Response
 
 _logger = logging.getLogger(__name__)
 
 
-class PosNetpayController(http.Controller):
+class PosRoute(http.Controller):
 
-    def _json_response(self, result=None, error=None):
-        body = json.dumps(result if error is None else error)
-        return Response(body, status=200, headers=[('Content-Type', 'application/json')])
+    def alternative_json_response(self, result=None, error=None):
+        response = result if error is None else error
+        body = json.dumps(response)
+        return Response(
+            body,
+            status=200,
+            headers=[('Content-Type', 'application/json')]
+        )
 
-    @http.route('/pos_netpay/transactions', type='json', auth='none', methods=['POST'], csrf=False)
-    def pos_netpay_transactions(self, **kw):
-        """Endpoint moderno para recibir notificaciones de Netpay"""
+    @http.route('/web/pos/transactions', type='json', methods=['POST'], auth='none', csrf=False)
+    def get_sessions(self):
         try:
-            payload = request.httprequest.get_data(as_text=True)
-            data = json.loads(payload)
+            json_data = json.loads(request.httprequest.data)
         except Exception:
-            _logger.exception("Payload JSON inválido en /pos_netpay/transactions")
+            _logger.exception("Invalid JSON payload")
             return {"code": 400, "message": "Invalid JSON"}
 
-        # Validar estructura básica
-        try:
-            traceability = data.get('traceability', {})
-            pm_id = None
-            if isinstance(traceability, dict) and traceability.get('payment_method_id'):
-                pm_id = int(traceability.get('payment_method_id'))
-            elif data.get('traceability') and isinstance(data['traceability'], dict) and data['traceability'].get('payment_method_id'):
-                pm_id = int(data['traceability']['payment_method_id'])
+        data = {"code": 300, "message": "error"}
 
-            if pm_id:
-                payment_method = request.env['pos.payment.method'].sudo().browse(pm_id)
-                if payment_method.exists():
-                    payment_method.sudo().write({'netpay_latest_response': json.dumps(data)})
-                    if 'orderId' in data and 'traceability' in data:
-                        if data['traceability'].get('cancel'):
-                            orders = request.env['pos.order'].sudo().search([('order_netpay_id', '=', data['orderId'])])
+        try:
+            if ("orderId" not in json_data) and ("traceability" in json_data) and ("terminalId" in json_data) and ("responseCode" in json_data):
+                payment_method = request.env['pos.payment.method'].sudo().search([
+                    ('id', '=', int(json_data['traceability']['payment_method_id']))
+                ], limit=1)
+                data = {"code": "00", "message": "Recibido"}
+                payment_method.netpay_latest_response = json.dumps(json_data)
+
+            if ("terminalId" in json_data) and ("responseCode" in json_data) and (json_data["responseCode"] == "02"):
+                payment_method = request.env['pos.payment.method'].sudo().search([
+                    ('id', '=', int(json_data['traceability']['payment_method_id']))
+                ], limit=1)
+                data = {"code": "00", "message": "Recibido"}
+                payment_method.netpay_latest_response = json.dumps(json_data)
+
+            if (
+                ("responseCode" in json_data)
+                and ("traceability" in json_data)
+                and ("type" in json_data["traceability"])
+                and (json_data["traceability"]["type"] == "sale")
+                and ("terminalId" not in json_data)
+                and ("serial_number" in json_data["traceability"])
+            ):
+                payment_method = request.env['pos.payment.method'].sudo().search([
+                    ('id', '=', int(json_data['traceability']['payment_method_id']))
+                ], limit=1)
+                data = {"code": "00", "message": "Recibido"}
+                payment_method.netpay_latest_response = json.dumps(json_data)
+
+            if "orderId" in json_data and "folioNumber" in json_data and 'terminalId' in json_data:
+                payment_method = request.env['pos.payment.method'].sudo().search([
+                    ('id', '=', int(json_data['traceability']['payment_method_id']))
+                ], limit=1)
+
+                if payment_method:
+                    payment_method.netpay_latest_response = False
+
+                    if json_data['orderId']:
+                        if "traceability" in json_data and json_data["traceability"].get("cancel") is True:
+                            orders = request.env['pos.order'].sudo().search([
+                                ('order_netpay_id', '=', json_data['orderId'])
+                            ])
                             if orders:
-                                orders.sudo().write({'order_cancel_netpay': True})
-                                return {"code": "00", "message": "Recibido"}
+                                data = {"code": "00", "message": "Recibido"}
+                                orders.order_cancel_netpay = True
                             else:
-                                return {"code": 300, "message": "Orden no encontrada"}
-                        if data['traceability'].get('type') == 'reprint':
-                            orders = request.env['pos.order'].sudo().search([('order_netpay_id', '=', data['orderId'])])
+                                data = {"code": 300, "message": "Orden no encontrada"}
+
+                        elif "traceability" in json_data and json_data["traceability"].get("type") == 'reprint':
+                            orders = request.env['pos.order'].sudo().search([
+                                ('order_netpay_id', '=', json_data['orderId'])
+                            ])
                             if orders:
-                                orders.sudo().write({'reprint_netpay': True})
-                                return {"code": "00", "message": "Recibido"}
+                                data = {"code": "00", "message": "Recibido"}
+                                orders.reprint_netpay = True
                             else:
-                                return {"code": 300, "message": "Orden no encontrada"}
-                        if data['traceability'].get('type') == 'sale':
-                            payment_method.sudo().write({
-                                'netpay_latest_response': json.dumps(data),
-                                'netpay_latest_diagnosis': data.get('orderId') or False
-                            })
-                            return {"code": "00", "message": "Recibido"}
-                    payment_method.sudo().write({'netpay_latest_response': json.dumps(data)})
-                    return {"code": "00", "message": "Recibido"}
-                else:
-                    _logger.error('Mensaje recibido para un payment_method no existente: %s', pm_id)
-                    return {"code": 404, "message": "Payment method not found"}
-            else:
-                _logger.warning('No se encontró payment_method_id en la notificación Netpay')
-                return {"code": 300, "message": "No payment_method_id"}
-        except Exception as e:
-            _logger.exception('Error procesando notificación Netpay: %s', e)
-            return {"code": 500, "message": "Internal Error"}
+                                data = {"code": 300, "message": "Orden no encontrada"}
+
+                        elif "traceability" in json_data and json_data["traceability"].get("type") == 'sale':
+                            data = {"code": "00", "message": "Recibido"}
+                            payment_method.netpay_latest_response = json.dumps(json_data)
+                            payment_method.netpay_latest_diagnosis = json_data['orderId']
+                    else:
+                        data = {"code": "00", "message": "Recibido"}
+                        payment_method.netpay_latest_response = json.dumps(json_data)
+
+        except Exception:
+            _logger.exception("Error processing Netpay notification")
+            return {"code": 500, "message": "Internal server error"}
+
+        return data
