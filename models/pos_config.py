@@ -19,6 +19,12 @@ class PosConfig(models.Model):
     netpay_client_id = fields.Char('Netpay Client ID')
     netpay_client_secret = fields.Char('Netpay Client Secret')
 
+
+    def _load_pos_data_fields(self, config):
+        params = super()._load_pos_data_fields(config)
+        params += ['serial_number', 'store_id_netpay', 'access_token']
+        return params
+
     def netpay_connection(self, extra_info):
         """Solicitar token a Netpay: extra_info puede contener 'new_token' o 'refresh_token'"""
         self.ensure_one()

@@ -16,9 +16,9 @@
     ],
     'assets': {
         'point_of_sale.assets': [
-            'pos_netpay_connector/static/src/js/netpay_payment.js',
-            'pos_netpay_connector/static/src/js/payment_lines_patch.js',
-            'pos_netpay_connector/static/src/js/pos_netpay_connector.js',
+            'pos_netpay_connector/static/src/app/payment_netpay.js',
+            'pos_netpay_connector/static/src/app/pos_payment.js'',
+            'pos_netpay_connector/static/src/app/screens/payment_screen/payment_screen.js',
         ],
     },
     'installable': True,
