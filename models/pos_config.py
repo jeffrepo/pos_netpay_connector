@@ -20,6 +20,15 @@ class PosConfig(models.Model):
     netpay_client_secret = fields.Char('Netpay Client Secret')
 
 
+    @api.model
+    def _load_pos_data_read(self, records, config):
+        read_records = super()._load_pos_data_read(records, config)
+        if read_records:
+            for rec, values in zip(records, read_records):
+                values.setdefault('use_pricelist', bool(rec.use_pricelist))
+                values.setdefault('pricelist_id', rec.pricelist_id.id if rec.pricelist_id else False)
+        return read_records
+
     def _load_pos_data_fields(self, config):
         params = super()._load_pos_data_fields(config)
         params += ['serial_number', 'store_id_netpay', 'access_token']
