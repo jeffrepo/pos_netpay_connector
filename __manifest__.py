@@ -17,7 +17,7 @@
     'assets': {
         'point_of_sale.assets': [
             'pos_netpay_connector/static/src/app/payment_netpay.js',
-            'pos_netpay_connector/static/src/app/pos_payment.js'',
+            'pos_netpay_connector/static/src/app/pos_payment.js',
             'pos_netpay_connector/static/src/app/screens/payment_screen/payment_screen.js',
         ],
     },
