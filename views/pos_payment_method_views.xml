@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <record id="view_pos_payment_method_form_inherit_netpay" model="ir.ui.view">
-        <field name="name">pos.payment.method.form.netpay</field>
+    <record id="pos_payment_method_view_inherit_netpay" model="ir.ui.view">
+        <field name="name">pos.payment.method.view.inherit.netpay</field>
         <field name="model">pos.payment.method</field>
-        <field name="inherit_id" ref="point_of_sale.view_payment_method_form"/>
+        <field name="inherit_id" ref="point_of_sale.pos_payment_method_view_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//sheet" position="inside">
-                <group string="Netpay">
-                    <field name="netpay_test_mode"/>
-                    <field name="netpay_api_base"/>
-                    <field name="netpay_terminal_identifier"/>
-                    <field name="terminal_api_key"/>
-                    <field name="terminal_api_pwd"/>
-                    <field name="terminal_id"/>
-                    <field name="administrators_only"/>
-                </group>
-            </xpath>
+            <xpath expr="//field[@name='use_payment_terminal']" position="after">
+                <field name="terminal_api_key" invisible="use_payment_terminal != 'netpay'" required="use_payment_terminal == 'netpay'"/>
+                <field name="terminal_api_pwd" password="True" invisible="use_payment_terminal != 'netpay'" required="use_payment_terminal == 'netpay'"/>
+                <field name="terminal_id" invisible="use_payment_terminal != 'netpay'" required="use_payment_terminal == 'netpay'"/>
+                <field name="netpay_terminal_identifier" invisible="use_payment_terminal != 'netpay'" required="use_payment_terminal == 'netpay'"/>
+                <field name="netpay_latest_response"/>
+           </xpath>
+           <field name="journal_id" position="after">
+                <field name="administrators_only"/>
+           </field>
+
         </field>
     </record>
 </odoo>

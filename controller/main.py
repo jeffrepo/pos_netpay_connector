@@ -91,6 +91,8 @@ class PosRoute(http.Controller):
                             data = {"code": "00", "message": "Recibido"}
                             payment_method.netpay_latest_response = json.dumps(json_data)
                             payment_method.netpay_latest_diagnosis = json_data['orderId']
+                            logging.warning("VENTA")
+                            logging.warning(json_data['orderId'])
                     else:
                         data = {"code": "00", "message": "Recibido"}
                         payment_method.netpay_latest_response = json.dumps(json_data)
@@ -98,5 +100,6 @@ class PosRoute(http.Controller):
         except Exception:
             _logger.exception("Error processing Netpay notification")
             return {"code": 500, "message": "Internal server error"}
-
+        logging.warning("final data")
+        logging.warning(data)
         return data

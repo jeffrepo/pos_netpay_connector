@@ -8,10 +8,10 @@ import { register_payment_method } from "@point_of_sale/app/services/pos_store";
 export class PaymentNetpay extends PaymentInterface {
     setup() {
         super.setup(...arguments);
+        console.warn("NETPAY TERMINAL REGISTERED");
         this.paymentLineResolvers = {};
         this.pollingHandles = {};
     }
-
     sendPaymentRequest(uuid) {
         super.sendPaymentRequest(uuid);
         return this._netpayPay(uuid);

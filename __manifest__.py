@@ -15,7 +15,7 @@
         'security/ir.model.access.csv',
     ],
     'assets': {
-        'point_of_sale.assets': [
+        'point_of_sale._assets_pos': [
             'pos_netpay_connector/static/src/app/payment_netpay.js',
             'pos_netpay_connector/static/src/app/pos_payment.js',
             'pos_netpay_connector/static/src/app/screens/payment_screen/payment_screen.js',

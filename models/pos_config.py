@@ -23,29 +23,38 @@ class PosConfig(models.Model):
     @api.model
     def _load_pos_data_read(self, records, config):
         read_records = super()._load_pos_data_read(records, config)
-        if read_records:
-            for rec, values in zip(records, read_records):
-                values.setdefault('use_pricelist', bool(rec.use_pricelist))
-                values.setdefault('pricelist_id', rec.pricelist_id.id if rec.pricelist_id else False)
+        if not read_records:
+            return read_records
+
+        for rec, values in zip(records, read_records):
+            values['serial_number'] = rec.serial_number or False
+            values['store_id_netpay'] = rec.store_id_netpay or False
+            values['access_token'] = rec.access_token or False
+        logging.warning("read_records")
+        logging.warning(read_records)
         return read_records
 
-    def _load_pos_data_fields(self, config):
-        params = super()._load_pos_data_fields(config)
-        params += ['serial_number', 'store_id_netpay', 'access_token']
-        return params
+
 
     def netpay_connection(self, extra_info):
         """Solicitar token a Netpay: extra_info puede contener 'new_token' o 'refresh_token'"""
         self.ensure_one()
-        url = f"{self.netpay_api_base}/gateway/oauth-service/oauth/token"
+        #url = f"{self.netpay_api_base}/gateway/oauth-service/oauth/token"
+        url = "https://api-154.api-netpay.com/oauth-service/oauth/token"
         payload = ''
         if 'new_token' in extra_info:
             # datos por defecto (ajusta según tu credencial)
-            payload = 'grant_type=password&username=smartPos&password=netpay'
+            #Produccion
+            #payload = 'grant_type=password&username=smartPos&password=netpay'
+            #test
+            payload = 'grant_type=password&username=Nacional&password=netpay'
         if 'refresh_token' in extra_info:
             payload = 'grant_type=refresh_token&refresh_token=' + str(extra_info['refresh_token'])
         headers = {
             'Content-Type': 'application/x-www-form-urlencoded',
+            #produccion
+            #'Authorization': 'Basic dHJ1c3RlZC1hcHA6c2VjcmV0'
+            #test
             'Authorization': 'Basic dHJ1c3RlZC1hcHA6c2VjcmV0'
         }
         try:

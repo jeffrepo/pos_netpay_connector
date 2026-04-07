@@ -48,30 +48,38 @@ class PosPaymentMethod(models.Model):
 
     def proxy_netpay_request(self, data, operation=False):
         self.ensure_one()
+        logging.warning("proxy_netpay_request")
+        logging.warning(data)
         if not self.env.su and not self.env.user.has_group('point_of_sale.group_pos_user'):
             raise AccessDenied()
         if not data:
             raise UserError(_('Invalid Netpay request'))
-
+        
+        logging.warning(operation)
         if operation == 'sale':
             self.sudo().netpay_latest_response = ''
 
         return self._proxy_netpay_request_direct(data, operation or 'sale')
 
     def _get_netpay_endpoints(self):
+        #return {
+        #    'sale': 'https://suite.netpay.com.mx/gateway/integration-service/transactions/sale',
+        #    'cancel': 'https://suite.netpay.com.mx/gateway/integration-service/transactions/cancel',
+        #    'reprint': 'https://suite.netpay.com.mx/gateway/integration-service/transactions/reprint',
+        #}
         return {
-            'sale': 'https://suite.netpay.com.mx/gateway/integration-service/transactions/sale',
-            'cancel': 'https://suite.netpay.com.mx/gateway/integration-service/transactions/cancel',
-            'reprint': 'https://suite.netpay.com.mx/gateway/integration-service/transactions/reprint',
+            'sale': 'https://api-154.api-netpay.com/integration-service/transactions/sale',
+            'cancel': 'https://api-154.api-netpay.com/integration-service/transactions/cancel',
+            'reprint': 'https://api-154.api-netpay.com/integration-service/transactions/reprint',
         }
 
     def _proxy_netpay_request_direct(self, data, operation):
         self.ensure_one()
         timeout = 10
-
+        logging.warning("_proxy_netpay_request_direct")
         endpoint = self._get_netpay_endpoints()[operation]
         access_token = data.get('traceability', {}).get('access_token') or data.get('traceability', {}).get('refresh_token')
-
+        logging.warning(access_token)
         headers = {
             'Content-Type': 'application/json',
         }
@@ -79,9 +87,11 @@ class PosPaymentMethod(models.Model):
             headers['Authorization'] = f'Bearer {access_token}'
 
         _logger.info('Request to Netpay by user #%d: %s', self.env.uid, data)
-
+        logging.warning(endpoint)
+        logging.warning(data)
         req = requests.post(endpoint, json=data, headers=headers, timeout=timeout)
-
+        logging.warning(req.status_code)
+        logging.warning(req.text)
         if req.status_code == 401:
             return {
                 'error': {
@@ -97,6 +107,8 @@ class PosPaymentMethod(models.Model):
             return req.json()
         except Exception:
             if req.status_code == 200:
+                logging.warning("____req.status_code")
+                logging.warning(req.status_code)
                 return True
             return {
                 'error': {
