@@ -10,7 +10,7 @@
     'depends': ['base', 'point_of_sale'],
     'data': [
         'views/pos_config_view.xml',
-        'views/pos_order_views.xml',
+        #'views/pos_order_views.xml',
         'views/pos_payment_method_views.xml',
         'security/ir.model.access.csv',
     ],
